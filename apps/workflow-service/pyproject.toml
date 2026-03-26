@@ -1,0 +1,11 @@
+[project]
+name = "workflow-service"
+version = "0.1.0"
+description = "Workflow orchestration microservice for Aerolytic CRM"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

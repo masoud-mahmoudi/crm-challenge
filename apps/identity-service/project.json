@@ -1,0 +1,34 @@
+{
+  "name": "identity-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/identity-service",
+  "sourceRoot": "apps/identity-service/apps",
+  "projectType": "application",
+  "tags": [
+    "scope:backend",
+    "type:app"
+  ],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py migrate --noinput --settings=config.settings.local && ../../.venv/bin/python manage.py runserver 0.0.0.0:8001 --settings=config.settings.local",
+        "cwd": "apps/identity-service"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py test --settings=config.settings.test",
+        "cwd": "apps/identity-service"
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python scripts/seed_data.py",
+        "cwd": "apps/identity-service"
+      }
+    }
+  }
+}

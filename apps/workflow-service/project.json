@@ -1,0 +1,34 @@
+{
+  "name": "workflow-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/workflow-service",
+  "sourceRoot": "apps/workflow-service/apps",
+  "projectType": "application",
+  "tags": [
+    "scope:backend",
+    "type:app"
+  ],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py ensure_db_schema --settings=config.settings.local && ../../.venv/bin/python manage.py migrate --noinput --settings=config.settings.local && ../../.venv/bin/python manage.py runserver 0.0.0.0:8003 --settings=config.settings.local",
+        "cwd": "apps/workflow-service"
+      }
+    },
+    "consume": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py ensure_db_schema --settings=config.settings.local && ../../.venv/bin/python manage.py migrate --noinput --settings=config.settings.local && ../../.venv/bin/python manage.py consume_events --settings=config.settings.local",
+        "cwd": "apps/workflow-service"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py test --settings=config.settings.test",
+        "cwd": "apps/workflow-service"
+      }
+    }
+  }
+}

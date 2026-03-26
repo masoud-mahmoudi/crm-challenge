@@ -1,0 +1,41 @@
+{
+  "name": "crm-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/crm-service",
+  "sourceRoot": "apps/crm-service/apps",
+  "projectType": "application",
+  "tags": [
+    "scope:backend",
+    "type:app"
+  ],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py migrate --noinput --settings=config.settings.local && ../../.venv/bin/python manage.py publish_outbox --settings=config.settings.local && ../../.venv/bin/python manage.py runserver 0.0.0.0:8002 --settings=config.settings.local",
+        "cwd": "apps/crm-service"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py test --settings=config.settings.test",
+        "cwd": "apps/crm-service"
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python scripts/seed_data.py",
+        "cwd": "apps/crm-service"
+      }
+    },
+    "publish-outbox": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py publish_outbox --settings=config.settings.local",
+        "cwd": "apps/crm-service"
+      }
+    }
+  }
+}

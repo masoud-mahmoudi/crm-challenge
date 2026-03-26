@@ -1,0 +1,1 @@
+CRM_LEAD_CREATED_TOPIC = "crm.lead.created"

@@ -1,0 +1,27 @@
+{
+  "name": "api-gateway",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/api-gateway",
+  "sourceRoot": "apps/api-gateway/apps",
+  "projectType": "application",
+  "tags": [
+    "scope:backend",
+    "type:app"
+  ],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py runserver 0.0.0.0:${PORT:-8000} --settings=config.settings.local",
+        "cwd": "apps/api-gateway"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../.venv/bin/python manage.py test --settings=config.settings.test",
+        "cwd": "apps/api-gateway"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "auth",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/auth",
+  "sourceRoot": "libs/auth/src",
+  "projectType": "library",
+  "tags": [
+    "scope:backend",
+    "type:lib"
+  ],
+  "targets": {}
+}

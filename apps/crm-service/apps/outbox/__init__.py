@@ -1,0 +1,1 @@
+"""Outbox app for asynchronous event publishing."""

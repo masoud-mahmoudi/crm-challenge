@@ -1,0 +1,12 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": [
+    "apps",
+    "libs"
+  ],
+  "extraPaths": [
+    "libs/auth/src",
+    "libs/kafka/src"
+  ]
+}

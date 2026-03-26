@@ -1,0 +1,1 @@
+"""CRM service Django apps package."""

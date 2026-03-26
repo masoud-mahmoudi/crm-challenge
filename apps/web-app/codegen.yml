@@ -1,0 +1,17 @@
+schema:
+  - http://localhost:8000/graphql:
+      method: GET
+documents: "src/graphql/**/*.{ts,tsx,graphql}" # Path to your GraphQL queries, mutations, and subscriptions
+ignoreNoDocuments: true # Allow generation when there are no matching documents yet
+generates:
+  src/graphql/generated/graphql.tsx: # Output file for generated code
+    plugins:
+      - "typescript" # Generate TypeScript types
+      - "typescript-operations" # Generate types for queries and mutations
+      - "typed-document-node" # Generate typed GraphQL documents for Apollo Client
+    config:
+      scalars:
+        Date: Date # Map Date scalar to JavaScript Date
+      skipTypename: false # Include __typename in output
+      dedupeOperationSuffix: true # Deduplicate suffix for operations
+      avoidOptionals: false # Generate optional fields as defined in the schema

@@ -1,0 +1,6 @@
+Django==5.2.12
+djangorestframework==3.16.1
+PyJWT==2.12.1
+cryptography==46.0.5
+psycopg[binary]==3.2.10
+gunicorn==23.0.0

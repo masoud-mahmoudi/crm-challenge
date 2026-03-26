@@ -1,0 +1,11 @@
+Django==5.2.12
+djangorestframework==3.16.1
+psycopg[binary]==3.2.10
+httpx==0.28.1
+PyJWT==2.12.1
+cryptography==46.0.5
+kafka-python==2.2.15
+python-dotenv==1.1.1
+gunicorn==23.0.0
+pytest==8.4.2
+pytest-django==4.11.1

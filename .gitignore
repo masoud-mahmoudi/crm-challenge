@@ -1,0 +1,11 @@
+node_modules
+dist
+.nx
+.DS_Store
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+coverage
+.idea
+.vscode/settings.json

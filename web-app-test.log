@@ -1,0 +1,9 @@
+
+> nx run web-app:test
+
+
+
+
+ NX   Successfully ran target test for project web-app
+
+

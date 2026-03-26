@@ -1,0 +1,67 @@
+{
+  "name": "web-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/web-app",
+  "sourceRoot": "apps/web-app/src",
+  "projectType": "application",
+  "tags": [
+    "scope:web-app",
+    "type:app"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "configFile": "apps/web-app/vite.config.ts",
+        "outputPath": "dist/apps/web-app"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "web-app:build:development",
+        "port": 4200,
+        "host": "0.0.0.0"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "web-app:build:development"
+        },
+        "production": {
+          "buildTarget": "web-app:build:production"
+        }
+      }
+    },
+    "preview": {
+      "executor": "@nx/vite:preview-server",
+      "options": {
+        "buildTarget": "web-app:build:production",
+        "port": 4300,
+        "host": "0.0.0.0"
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "configFile": "apps/web-app/vite.config.ts",
+        "passWithNoTests": false
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+[project]
+name = "api-gateway"
+version = "0.1.0"
+description = "Frontend-facing BFF for Aerolytic CRM"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

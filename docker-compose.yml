@@ -1,0 +1,200 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: crm_aerialytic
+      POSTGRES_USER: app_db_user
+      POSTGRES_PASSWORD: app_db_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - identity-service-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_db_user -d crm_aerialytic"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  kafka:
+    image: apache/kafka:3.9.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: INTERNAL://:9092,EXTERNAL://:29092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    ports:
+      - "29092:29092"
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    environment:
+      APP_ENV: local
+      DJANGO_SETTINGS_MODULE: config.settings.local
+      DEBUG: "true"
+      ALLOWED_HOSTS: localhost,127.0.0.1,api-gateway
+      PORT: 8000
+      LOG_LEVEL: INFO
+      CORS_ALLOWED_ORIGINS: http://localhost:4200,http://127.0.0.1:4200,http://web-app:4200
+      IDENTITY_SERVICE_BASE_URL: http://identity-service:8001
+      CRM_SERVICE_BASE_URL: http://crm-service:8002
+      WORKFLOW_SERVICE_BASE_URL: http://workflow-service:8003
+      JWT_ISSUER: https://identity.aerolytic.local
+      JWT_AUDIENCE: aerolytic-clients
+      JWT_JWKS_URL: http://identity-service:8001/api/v1/auth/jwks/
+      REQUEST_TIMEOUT_SECONDS: 10
+    depends_on:
+      - identity-service
+      - crm-service
+      - workflow-service
+    ports:
+      - "8000:8000"
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: apps/identity-service/Dockerfile
+    environment:
+      PORT: 8001
+      DJANGO_SETTINGS_MODULE: config.settings.local
+      DJANGO_DEBUG: 1
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,identity-service
+      POSTGRES_DB: crm_aerialytic
+      POSTGRES_USER: app_db_user
+      POSTGRES_PASSWORD: app_db_password
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      JWT_ISSUER: https://identity.aerolytic.local
+      JWT_AUDIENCE: aerolytic-clients
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+
+  crm-service:
+    build:
+      context: .
+      dockerfile: apps/crm-service/Dockerfile
+    environment:
+      PORT: 8002
+      DJANGO_SETTINGS_MODULE: config.settings.local
+      DEBUG: "true"
+      ALLOWED_HOSTS: localhost,127.0.0.1,crm-service
+      POSTGRES_DB: crm_aerialytic
+      POSTGRES_USER: app_db_user
+      POSTGRES_PASSWORD: app_db_password
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      LOG_LEVEL: INFO
+      JWT_ISSUER: https://identity.aerolytic.local
+      JWT_AUDIENCE: aerolytic-clients
+      JWT_JWKS_URL: http://identity-service:8001/api/v1/auth/jwks/
+      IDENTITY_SERVICE_BASE_URL: http://identity-service:8001
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      INTERNAL_SERVICE_TOKEN: workflow-internal-token
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    ports:
+      - "8002:8002"
+
+  workflow-service:
+    build:
+      context: .
+      dockerfile: apps/workflow-service/Dockerfile
+    environment:
+      PORT: 8003
+      DJANGO_SETTINGS_MODULE: config.settings.local
+      DEBUG: "true"
+      ALLOWED_HOSTS: localhost,127.0.0.1,workflow-service
+      POSTGRES_DB: crm_aerialytic
+      POSTGRES_USER: app_db_user
+      POSTGRES_PASSWORD: app_db_password
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      DB_SCHEMA: workflow
+      LOG_LEVEL: INFO
+      JWT_ISSUER: https://identity.aerolytic.local
+      JWT_AUDIENCE: aerolytic-clients
+      JWT_JWKS_URL: http://identity-service:8001/api/v1/auth/jwks/
+      CRM_SERVICE_BASE_URL: http://crm-service:8002
+      IDENTITY_SERVICE_BASE_URL: http://identity-service:8001
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_GROUP_ID: workflow-service
+      INTERNAL_SERVICE_TOKEN: workflow-internal-token
+      REQUEST_TIMEOUT_SECONDS: 10
+      WORKFLOW_MAX_RETRIES: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      crm-service:
+        condition: service_started
+    ports:
+      - "8003:8003"
+
+  workflow-consumer:
+    build:
+      context: .
+      dockerfile: apps/workflow-service/Dockerfile
+    command: ["sh", "-c", "python manage.py consume_events --settings=config.settings.local"]
+    environment:
+      PORT: 8003
+      DJANGO_SETTINGS_MODULE: config.settings.local
+      DEBUG: "true"
+      ALLOWED_HOSTS: localhost,127.0.0.1,workflow-service
+      POSTGRES_DB: crm_aerialytic
+      POSTGRES_USER: app_db_user
+      POSTGRES_PASSWORD: app_db_password
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      DB_SCHEMA: workflow
+      LOG_LEVEL: INFO
+      JWT_ISSUER: https://identity.aerolytic.local
+      JWT_AUDIENCE: aerolytic-clients
+      JWT_JWKS_URL: http://identity-service:8001/api/v1/auth/jwks/
+      CRM_SERVICE_BASE_URL: http://crm-service:8002
+      IDENTITY_SERVICE_BASE_URL: http://identity-service:8001
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_GROUP_ID: workflow-service
+      INTERNAL_SERVICE_TOKEN: workflow-internal-token
+      REQUEST_TIMEOUT_SECONDS: 10
+      WORKFLOW_MAX_RETRIES: 3
+    depends_on:
+      workflow-service:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      crm-service:
+        condition: service_started
+
+  web-app:
+    build:
+      context: .
+      dockerfile: apps/web-app/Dockerfile
+    depends_on:
+      - api-gateway
+      - identity-service
+      - crm-service
+      - workflow-service
+    ports:
+      - "4200:4200"
+
+volumes:
+  identity-service-postgres:
