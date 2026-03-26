@@ -20,9 +20,6 @@
     "paths": {
       "@aerolytic/shared-types": [
         "libs/shared-types/src/index.ts"
-      ],
-      "@aerolytic/ui": [
-        "libs/ui/src/index.ts"
       ]
     }
   },

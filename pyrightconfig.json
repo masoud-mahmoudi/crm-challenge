@@ -6,7 +6,6 @@
     "libs"
   ],
   "extraPaths": [
-    "libs/auth/src",
-    "libs/kafka/src"
+    "libs/auth/src"
   ]
 }

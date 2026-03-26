@@ -1,8 +1,0 @@
-type ServiceHealth {
-  service: String!
-  status: String!
-}
-
-type Query {
-  health: [ServiceHealth!]!
-}
